@@ -1,0 +1,39 @@
+version: "3.7"
+services:
+  mysql:
+    image: mysql:8.0.27
+    container_name: mysql-container
+    restart: unless-stopped
+    ports:
+      - ${MYSQL_PORT:-3306}:3306
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-default}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-default}
+      MYSQL_USER: ${MYSQL_USER:-default}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-default}
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+    networks:
+      - app-network
+  
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin-container
+    restart: unless-stopped
+    depends_on:
+      - "mysql"
+    ports:
+      - ${PHPMYADMIN_PORT:-8080}:80
+    environment:
+      - PMA_HOST=mysql-container
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
